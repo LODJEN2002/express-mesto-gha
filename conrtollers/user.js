@@ -6,6 +6,10 @@ module.exports.createUser = (req, res) => {
       res.status(201).send(data);
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        return;
+      }
       res.status(500).send({ message: 'На сервере ошибка', err });
     });
 };
@@ -13,13 +17,10 @@ module.exports.createUser = (req, res) => {
 module.exports.getUserById = (req, res) => {
   model.findById(req.params.userId)
     .then((data) => {
-      // if(){
-      //   res.send('Пользователь не найден!')
-      //   return
-      // }
-      res.status(201).send(data);
-      console.log(req.params.userId);
-      console.log(req.params);
+      if (!data) {
+        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.status(201).send(data);
     })
     .catch((err) => {
       res.status(500).send({ message: 'На сервере ошибка', err });
@@ -27,12 +28,9 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.getUsers = (req, res) => {
-  // eslint-disable-next-line no-underscore-dangle
-  console.log(req.user._id);
   model.find()
     .then((data) => {
       res.status(201).send(data);
-      // console.log(req);
     })
     .catch((err) => {
       res.status(500).send({ message: 'На сервере ошибка', err });
@@ -41,12 +39,14 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.updateUser = (req, res) => {
   // eslint-disable-next-line no-underscore-dangle
-  console.log(req.user._id);
-  console.log(req.body);
-  // eslint-disable-next-line no-underscore-dangle
   model.findByIdAndUpdate(req.user._id, req.body)
     .then((data) => {
-      res.status(201).send(data);
+      if (!req.body.name) {
+        return res.status(400).send({ messenge: 'Переданы некорректные данные при обновлении профиля.' });
+      } if (!req.body.about) {
+        return res.status(400).send({ messenge: 'Переданы некорректные данные при обновлении профиля.' });
+      }
+      return res.status(201).send(data);
     })
     .catch((err) => {
       res.status(500).send({ message: 'На сервере ошибка', err });
@@ -55,12 +55,12 @@ module.exports.updateUser = (req, res) => {
 
 module.exports.updateUserAvatar = (req, res) => {
   // eslint-disable-next-line no-underscore-dangle
-  console.log(req.user._id);
-  console.log(req.body);
-  // eslint-disable-next-line no-underscore-dangle
   model.findByIdAndUpdate(req.user._id, req.body)
     .then((data) => {
-      res.status(201).send(data);
+      if (!req.body.avatar) {
+        return res.status(400).send({ messenge: 'Переданы некорректные данные при обновлении аватара.' });
+      }
+      return res.status(201).send(data);
     })
     .catch((err) => {
       res.status(500).send({ message: 'На сервере ошибка', err });
