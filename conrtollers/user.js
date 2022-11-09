@@ -71,5 +71,5 @@ module.exports.updateUserAvatar = (req, res) => {
 };
 
 module.exports.NotFoundController = (req, res) => {
-  res.send({ message: 'Запрашиваемый ресурс не найден' });
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 };
