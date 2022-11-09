@@ -22,24 +22,7 @@ mongoose.connect(MONGO_URL);
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
 
-// const card = mongoose.Schema({
-//   name: {
-
-//   },
-//   link: {
-
-//   }
-//   owner : {
-
-//   },
-//   likes : {
-
-//   },
-//   createdAt : {
-
-//   },
-// })
-
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`App listening on port ${PORT}`);
 });
