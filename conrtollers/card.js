@@ -20,7 +20,7 @@ module.exports.getCards = (req, res) => {
   // eslint-disable-next-line no-underscore-dangle
   model.find()
     .then((data) => {
-      res.status(201).send(data);
+      res.status(200).send(data);
     })
     .catch((err) => {
       res.status(500).send({ message: 'На сервере ошибка', err });
@@ -33,10 +33,10 @@ module.exports.deleteCardById = (req, res) => {
       if (!data) {
         return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.status(201).send(data);
+      return res.status(200).send(data);
     })
     .catch((err) => {
-      res.status(500).send({ message: 'На сервере ошибка', err });
+      res.status(400).send({ message: 'На сервере ошибка', err });
     });
 };
 
@@ -50,10 +50,10 @@ module.exports.likeCard = (req, res) => model.findByIdAndUpdate(
     if (!data) {
       return res.status(404).send({ message: 'Передан несуществующий _id карточки. ' });
     }
-    return res.status(201).send(data);
+    return res.status(200).send(data);
   })
   .catch((err) => {
-    res.status(500).send({ message: 'На сервере ошибка', err });
+    res.status(400).send({ message: 'На сервере ошибка', err });
   });
 
 module.exports.dislikeCard = (req, res) => model.findByIdAndUpdate(
@@ -66,8 +66,8 @@ module.exports.dislikeCard = (req, res) => model.findByIdAndUpdate(
     if (!data) {
       return res.status(404).send({ message: 'Передан несуществующий _id карточки. ' });
     }
-    return res.status(201).send(data);
+    return res.status(200).send(data);
   })
   .catch((err) => {
-    res.status(500).send({ message: 'На сервере ошибка', err });
+    res.status(400).send({ message: 'На сервере ошибка', err });
   });
