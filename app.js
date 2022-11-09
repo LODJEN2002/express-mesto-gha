@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
 
+const { NotFoundController } = require('./conrtollers/user');
+
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
@@ -21,6 +23,7 @@ mongoose.connect(MONGO_URL);
 
 app.use('/', routerUser);
 app.use('/cards', routerCard);
+app.use('/*', NotFoundController);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
