@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 
 mongoose.connect(MONGO_URL);
 
-app.use('/users', routerUser);
+app.use('/', routerUser);
 app.use('/cards', routerCard);
 
 app.listen(PORT, () => {

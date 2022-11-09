@@ -69,3 +69,7 @@ module.exports.updateUserAvatar = (req, res) => {
       res.status(500).send({ message: 'На сервере ошибка', err });
     });
 };
+
+module.exports.NotFoundController = (req, res) => {
+  res.send({ message: 'Запрашиваемый ресурс не найден' });
+};
