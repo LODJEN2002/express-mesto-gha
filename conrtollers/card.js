@@ -1,29 +1,35 @@
 const model = require('../models/card');
 
+const err500 = 500;
+const err400 = 400;
+const err404 = 404;
+const create = 201;
+const ok = 200;
+
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
   model.create({ name, link, owner: req.user._id })
     .then((card) => {
-      res.status(201).send(card);
+      res.status(create).send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: ' Переданы некорректные данные при создании карточки.' });
+        return res.status(err400).send({ message: ' Переданы некорректные данные при создании карточки.' });
       }
       console.log(err);
-      return res.status(500).send({ message: 'На сервере ошибка' });
+      return res.status(err500).send({ message: 'На сервере ошибка' });
     });
 };
 
 module.exports.getCards = (req, res) => {
   model.find()
     .then((card) => {
-      res.status(200).send(card);
+      res.status(ok).send(card);
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send({ message: 'На сервере ошибка' });
+      res.status(err500).send({ message: 'На сервере ошибка' });
     });
 };
 
@@ -31,13 +37,16 @@ module.exports.deleteCardById = (req, res) => {
   model.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        return res.status(err404).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.status(200).send(card);
+      return res.status(ok).send(card);
     })
     .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(err400).send({ message: 'Переданы некорректные данные' });
+      }
       console.log(err);
-      res.status(400).send({ message: 'На сервере ошибка' });
+      return res.status(err500).send({ message: 'На сервере ошибка' });
     });
 };
 
@@ -48,13 +57,16 @@ module.exports.likeCard = (req, res) => model.findByIdAndUpdate(
 )
   .then((card) => {
     if (!card) {
-      return res.status(404).send({ message: 'Передан несуществующий _id карточки. ' });
+      return res.status(err404).send({ message: 'Передан несуществующий _id карточки. ' });
     }
-    return res.status(200).send(card);
+    return res.status(ok).send(card);
   })
   .catch((err) => {
+    if (err.name === 'CastError') {
+      return res.status(err400).send({ message: 'Переданы некорректные данные' });
+    }
     console.log(err);
-    res.status(400).send({ message: 'На сервере ошибка' });
+    return res.status(err500).send({ message: 'На сервере ошибка' });
   });
 
 module.exports.dislikeCard = (req, res) => model.findByIdAndUpdate(
@@ -64,11 +76,14 @@ module.exports.dislikeCard = (req, res) => model.findByIdAndUpdate(
 )
   .then((card) => {
     if (!card) {
-      return res.status(404).send({ message: 'Передан несуществующий _id карточки. ' });
+      return res.status(err404).send({ message: 'Передан несуществующий _id карточки. ' });
     }
-    return res.status(200).send(card);
+    return res.status(ok).send(card);
   })
   .catch((err) => {
+    if (err.name === 'CastError') {
+      return res.status(err400).send({ message: 'Переданы некорректные данные' });
+    }
     console.log(err);
-    res.status(400).send({ message: 'На сервере ошибка' });
+    return res.status(err500).send({ message: 'На сервере ошибка' });
   });
