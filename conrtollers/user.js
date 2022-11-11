@@ -55,8 +55,11 @@ module.exports.updateUser = (req, res) => {
       res.status(ok).send(user);
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(err400).send({ message: 'Переданы некорректные данные' });
+      }
       console.log(err);
-      res.status(err500).send({ message: 'На сервере ошибка' });
+      return res.status(err500).send({ message: 'На сервере ошибка' });
     });
 };
 
