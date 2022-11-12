@@ -24,8 +24,8 @@ module.exports.createCard = (req, res) => {
 
 module.exports.getCards = (req, res) => {
   model.find()
-    .then((card) => {
-      res.status(ok).send(card);
+    .then((cards) => {
+      res.status(ok).send(cards);
     })
     .catch((err) => {
       console.log(err);

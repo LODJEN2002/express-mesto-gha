@@ -13,11 +13,11 @@ module.exports.createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(err400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
-        return;
+        console.log(err);
+        return res.status(err400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
       }
       console.log(err);
-      res.status(err500).send({ message: 'На сервере ошибка' });
+      return res.status(err500).send({ message: 'На сервере ошибка' });
     });
 };
 
@@ -40,8 +40,8 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.getUsers = (req, res) => {
   model.find()
-    .then((user) => {
-      res.status(ok).send(user);
+    .then((users) => {
+      res.status(ok).send(users);
     })
     .catch((err) => {
       console.log(err);
@@ -52,10 +52,14 @@ module.exports.getUsers = (req, res) => {
 module.exports.updateUser = (req, res) => {
   model.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => {
-      res.status(ok).send(user);
+      if (!user) {
+        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.status(ok).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
+        console.log(err);
         return res.status(err400).send({ message: 'Переданы некорректные данные' });
       }
       console.log(err);
@@ -66,10 +70,17 @@ module.exports.updateUser = (req, res) => {
 module.exports.updateUserAvatar = (req, res) => {
   model.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => {
-      res.status(ok).send(user);
+      if (!user) {
+        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.status(ok).send(user);
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        console.log(err);
+        return res.status(err400).send({ message: 'Переданы некорректные данные' });
+      }
       console.log(err);
-      res.status(err500).send({ message: 'На сервере ошибка' });
+      return res.status(err500).send({ message: 'На сервере ошибка' });
     });
 };
