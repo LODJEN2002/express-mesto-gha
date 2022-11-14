@@ -1,3 +1,4 @@
+const validator = require('validator');
 const model = require('../models/user');
 
 const err500 = 500;
@@ -9,6 +10,11 @@ const ok = 200;
 module.exports.createUser = (req, res) => {
   model.create(req.body)
     .then((user) => {
+      if (validator.isEmail(req.body.email)) {
+        console.log('s');
+        console.log(validator.isEmail(req.body.email));
+      }
+      console.log(validator.isEmail(req.body.email));
       res.status(create).send(user);
     })
     .catch((err) => {
