@@ -1,4 +1,6 @@
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
+
 const model = require('../models/user');
 
 const err500 = 500;
@@ -8,17 +10,26 @@ const create = 201;
 const ok = 200;
 
 module.exports.createUser = (req, res) => {
-  model.create(req.body)
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => model.create({
+      email: req.body.email,
+      password: hash,
+    }))
     .then((user) => {
       if (validator.isEmail(req.body.email)) {
-        console.log('s');
+        console.log('почта валидный');
         console.log(validator.isEmail(req.body.email));
+        return res.status(create).send(user);
+      } if (!user) {
+        console.log('!user');
       }
       console.log(validator.isEmail(req.body.email));
-      res.status(create).send(user);
+      console.log('почта не валидный');
+      return res.send({ message: 'почта не валидный' });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
+        console.log(err);
         return res.status(err400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
       }
       console.log(err);
