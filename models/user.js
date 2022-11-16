@@ -3,6 +3,15 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
   {
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
     name: {
       type: String,
       minlength: 2,
@@ -18,15 +27,6 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    },
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
     },
   },
   {
@@ -49,5 +49,15 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         });
     });
 };
+
+// Это я в попытках сделать уникальную почту...
+// userSchema.statics.findUserByEmail = function (email) {
+//   return this.findOne({ email })
+//     .then((user) => {
+//       if (!user) {
+//         return email;
+//       }
+//     });
+// };
 
 module.exports = mongoose.model('user', userSchema);

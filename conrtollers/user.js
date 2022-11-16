@@ -11,6 +11,11 @@ const create = 201;
 const ok = 200;
 
 module.exports.createUser = (req, res) => {
+  // Это я в попытках сделать уникальную почту...
+  // model.findUserByEmail(req.body.email)
+  //   .then((user) => {
+  //     res.send('можно делать');
+  //   });
   bcrypt.hash(req.body.password, 10)
     .then((hash) => model.create({
       email: req.body.email,
@@ -18,14 +23,8 @@ module.exports.createUser = (req, res) => {
     }))
     .then((user) => {
       if (validator.isEmail(req.body.email)) {
-        console.log('почта валидный');
-        console.log(validator.isEmail(req.body.email));
         return res.status(create).send(user);
-      } if (!user) {
-        console.log('!user');
       }
-      console.log(validator.isEmail(req.body.email));
-      console.log('почта не валидный');
       return res.send({ message: 'почта не валидный' });
     })
     .catch((err) => {
@@ -117,3 +116,17 @@ module.exports.login = (req, res) => {
       res.status(401).send({ message: err.message });
     });
 };
+
+// module.exports.search = (req, res) => {
+//   model.findOne({ email: req.body.email })
+//     .then((user) => {
+//       if (!user) {
+//         res.send('всё ок')
+//       }
+//       res.send(user);
+//     })
+//     .catch((err) => {
+//       res.send(err);
+//       console.log(err)
+//     });
+// };

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
+const { login, createUser } = require('./conrtollers/user');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
@@ -17,8 +18,10 @@ app.use((req, res, next) => {
   next();
 });
 
-mongoose.connect(MONGO_URL);
+mongoose.connect(MONGO_URL, { autoIndex: true });
 
+app.post('/signin', login);
+app.post('/signup', createUser);
 app.use('/', routerUser);
 app.use('/cards', routerCard);
 app.use('/*', (req, res) => {
