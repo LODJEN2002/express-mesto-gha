@@ -11,11 +11,6 @@ const create = 201;
 const ok = 200;
 
 module.exports.createUser = (req, res) => {
-  // Это я в попытках сделать уникальную почту...
-  // model.findUserByEmail(req.body.email)
-  //   .then((user) => {
-  //     res.send('можно делать');
-  //   });
   bcrypt.hash(req.body.password, 10)
     .then((hash) => model.create({
       email: req.body.email,
@@ -117,16 +112,19 @@ module.exports.login = (req, res) => {
     });
 };
 
-// module.exports.search = (req, res) => {
-//   model.findOne({ email: req.body.email })
-//     .then((user) => {
-//       if (!user) {
-//         res.send('всё ок')
-//       }
-//       res.send(user);
-//     })
-//     .catch((err) => {
-//       res.send(err);
-//       console.log(err)
-//     });
-// };
+module.exports.getMyProfiel = (req, res) => {
+  model.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.status(ok).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(err400).send({ message: 'Передан невалидный ID для поиска' });
+      }
+      console.log(err);
+      return res.status(err500).send({ message: 'На сервере ошибка' });
+    });
+};

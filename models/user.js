@@ -50,14 +50,4 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     });
 };
 
-// Это я в попытках сделать уникальную почту...
-// userSchema.statics.findUserByEmail = function (email) {
-//   return this.findOne({ email })
-//     .then((user) => {
-//       if (!user) {
-//         return email;
-//       }
-//     });
-// };
-
 module.exports = mongoose.model('user', userSchema);

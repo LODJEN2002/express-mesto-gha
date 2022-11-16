@@ -34,21 +34,50 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCardById = (req, res) => {
-  model.findByIdAndRemove(req.params.cardId)
+  model.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         return res.status(err404).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.status(ok).send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(err400).send({ message: 'Переданы некорректные данные' });
+      if (card.owner.toString() !== req.user._id) {
+        return res.status(err404).send({ message: 'Недостаточно прав.' });
       }
-      console.log(err);
-      return res.status(err500).send({ message: 'На сервере ошибка' });
+      return model.findByIdAndDelete(req.params.cardId)
+        .then(() => {
+          res.send(card);
+        })
+        .catch((err) => {
+          if (err.name === 'CastError') {
+            return res.status(err400).send({ message: 'Переданы некорректные данные' });
+          }
+          console.log(err);
+          return res.status(err500).send({ message: 'На сервере ошибка' });
+        });
     });
 };
+
+// module.exports.deleteCardById = (req, res) => {
+//   model.findById(req.params.cardId)
+//     .then((card) => {
+//       if (!card) {
+//         return res.status(err404).send({ message: 'Карточка с указанным _id не найдена.' });
+//       }
+//       if (card.owner.toString() !== req.user._id) {
+//         res.status(err404).send({ message: 'asdasd' });
+//       }
+//       model.findByIdAndDelete(req.params.cardId)
+//         .then((card) => {
+//           res.status(ok).send(card);
+//         })
+//         .catch((err) => {
+//           if (err.name === 'CastError') {
+//             return res.status(err400).send({ message: 'Переданы некорректные данные' });
+//           }
+//           console.log(err);
+//           return res.status(err500).send({ message: 'На сервере ошибка' });
+//         });
+//     });
+// };
 
 module.exports.likeCard = (req, res) => model.findByIdAndUpdate(
   req.params.cardId,
