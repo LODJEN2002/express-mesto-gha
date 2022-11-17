@@ -1,16 +1,14 @@
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const NotFoundError = require('../errors/not-found-err');
 
 const model = require('../models/user');
 
-const err500 = 500;
-const err400 = 400;
-const err404 = 404;
 const create = 201;
 const ok = 200;
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => model.create({
       email: req.body.email,
@@ -22,83 +20,51 @@ module.exports.createUser = (req, res) => {
       }
       return res.send({ message: 'почта не валидный' });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        console.log(err);
-        return res.status(err400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
-      }
-      console.log(err);
-      return res.status(err500).send({ message: 'На сервере ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   model.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       return res.status(ok).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(err400).send({ message: 'Передан невалидный ID для поиска' });
-      }
-      console.log(err);
-      return res.status(err500).send({ message: 'На сервере ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   model.find()
     .then((users) => {
       res.status(ok).send(users);
     })
-    .catch((err) => {
-      console.log(err);
-      res.status(err500).send({ message: 'На сервере ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   model.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
       return res.status(ok).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(err400).send({ message: 'Переданы некорректные данные' });
-      } if (err.name === 'CastError') {
-        return res.status(err400).send({ message: 'Передан невалидный ID для поиска' });
-      }
-      console.log(err);
-      return res.status(err500).send({ message: 'На сервере ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   model.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
       return res.status(ok).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(err400).send({ message: 'Переданы некорректные данные' });
-      } if (err.name === 'CastError') {
-        return res.status(err400).send({ message: 'Передан невалидный ID для поиска' });
-      }
-      console.log(err);
-      return res.status(err500).send({ message: 'На сервере ошибка' });
-    });
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return model.findUserByCredentials(email, password)
@@ -107,24 +73,16 @@ module.exports.login = (req, res) => {
 
       return res.send({ token });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-module.exports.getMyProfiel = (req, res) => {
+module.exports.getMyProfiel = (req, res, next) => {
   model.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res.status(err404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
       return res.status(ok).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(err400).send({ message: 'Передан невалидный ID для поиска' });
-      }
-      console.log(err);
-      return res.status(err500).send({ message: 'На сервере ошибка' });
-    });
+    .catch(next);
 };

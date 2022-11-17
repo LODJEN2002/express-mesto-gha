@@ -24,6 +24,20 @@ app.use('/*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
+app.use((err, req, res, next) => {
+  if (err.name === 'CastError') {
+    return res.status(400).send({ message: 'Передан невалидный ID для поиска' });
+  } if (err.name === 'ValidationError') {
+    return res.status(400).send({ message: 'Переданы некорректные данные' });
+  }
+  if (err.code === 11000) {
+    return res.status(409).send({ message: 'Пользователь с таким email уже зарегестриван.' });
+  }
+  res.status(err.statusCode).send({ message: err.message });
+
+  return next();
+});
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
