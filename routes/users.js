@@ -17,10 +17,12 @@ router.patch('/users/me', celebrate({
   }),
 }), updateUser);
 
-router.patch('/users/me/avatar', celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().email().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
-  }),
-}), updateUserAvatar);
+router.patch('/users/me/avatar', updateUserAvatar);
+
+// celebrate({
+//   body: Joi.object().keys({
+//     avatar: Joi.string().email().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+//   }),
+// }),
 
 module.exports = router;
