@@ -16,7 +16,13 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => {
       if (validator.isEmail(req.body.email)) {
-        return res.status(create).send(user);
+        return res.status(create).send({
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+          _id: user._id,
+        });
       }
       return res.send({ message: 'Почта не валидная' });
     })

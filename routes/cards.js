@@ -21,10 +21,22 @@ router.post('/', celebrate({
 
 router.get('/', getCards);
 
-router.delete('/:cardId', deleteCardById);
+router.delete('/:cardId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24),
+  }),
+}), deleteCardById);
 
-router.put('/:cardId/likes', likeCard);
+router.put('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24),
+  }),
+}), likeCard);
 
-router.delete('/:cardId/likes', dislikeCard);
+router.delete('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24),
+  }),
+}), dislikeCard);
 
 module.exports = router;
