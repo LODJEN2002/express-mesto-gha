@@ -19,7 +19,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => {
       if (validator.isEmail(req.body.email)) {
-        console.log(user)
+        console.log(user);
         return res.status(create).send({
           name: user.name,
           about: user.about,
