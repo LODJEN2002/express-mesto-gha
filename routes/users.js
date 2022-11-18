@@ -1,5 +1,7 @@
 const router = require('express').Router();
+const validator = require('validator');
 const { celebrate, Joi } = require('celebrate');
+const UrlError = require('../errors/urlError');
 const {
   getUserById, getUsers, updateUser, updateUserAvatar, getMyProfiel,
 } = require('../conrtollers/user');
@@ -12,14 +14,19 @@ router.get('/users', getUsers);
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().default('Жак-Ив Кусто').min(2).max(30),
-    about: Joi.string().default('Исследователь').min(2).max(30),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
   }),
 }), updateUser);
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string(),
+    avatar: Joi.string().custom((avatar) => {
+      if (!validator.isURL(avatar)) {
+        throw new UrlError('Это не URL');
+      }
+      return avatar;
+    }),
   }),
 }), updateUserAvatar);
 
