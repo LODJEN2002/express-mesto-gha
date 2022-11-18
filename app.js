@@ -36,7 +36,7 @@ app.post('/signup', celebrate({
       }
       return avatar;
     }),
-  }).unknown(true),
+  }).unknown(false),
 }), createUser);
 
 app.use(auth);

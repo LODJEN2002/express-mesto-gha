@@ -13,9 +13,13 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => model.create({
       email: req.body.email,
       password: hash,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
     }))
     .then((user) => {
       if (validator.isEmail(req.body.email)) {
+        console.log(user)
         return res.status(create).send({
           name: user.name,
           about: user.about,
