@@ -28,6 +28,16 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().default('Жак-Ив Кусто').min(2).max(30),
     about: Joi.string().default('Исследователь').min(2).max(30),
+    avatar: {
+      type: String,
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      validate: {
+        validator(v) {
+          return /https?:\/\/\S+/.test(v);
+        },
+        message: (props) => `${props.value} Это не url!`,
+      },
+    },
   }).unknown(true),
 }), createUser);
 

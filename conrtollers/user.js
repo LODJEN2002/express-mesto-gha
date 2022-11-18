@@ -64,7 +64,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.login = (req, res, next) => {
+module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
   return model.findUserByCredentials(email, password)
@@ -73,7 +73,11 @@ module.exports.login = (req, res, next) => {
 
       return res.send({ token });
     })
-    .catch(next);
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
+    });
 };
 
 module.exports.getMyProfiel = (req, res, next) => {
