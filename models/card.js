@@ -13,7 +13,7 @@ const cardSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator(v) {
-          return /https?:\/\/\S+/.test(v);
+          return /https?:\/\/\S+/.test(v);// У меня не пропускает... https://ya@.ru/av.bmp
         },
         message: (props) => `${props.value} Это не url!`,
       },
