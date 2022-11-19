@@ -7,7 +7,8 @@ const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
 const { login, createUser } = require('./conrtollers/user');
 const auth = require('./middlewares/auth');
-const UrlError = require('./errors/urlError');
+const BadRequestError = require('./errors/BadRequestError');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
@@ -32,7 +33,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().custom((avatar) => {
       if (!validator.isURL(avatar)) {
-        throw new UrlError('Это не URL');
+        throw new BadRequestError('Это не URL');
       }
       return avatar;
     }),
@@ -43,22 +44,19 @@ app.use(auth);
 
 app.use('/', routerUser);
 app.use('/cards', routerCard);
-app.use('/*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use('/*', () => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
 
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  if (err.name === 'CastError') {
-    return res.status(400).send({ message: 'Передан невалидный ID для поиска' });
-  } if (err.name === 'ValidationError') {
-    return res.status(400).send({ message: 'Переданы некорректные данные' });
-  }
-  if (err.code === 11000) {
-    return res.status(409).send({ message: 'Пользователь с таким email уже зарегестриван.' });
-  }
-  res.status(err.statusCode).send({ message: err.message });
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка'
+      : message,
+  });
 
   return next();
 });

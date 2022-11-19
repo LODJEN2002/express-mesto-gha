@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-const UrlError = require('../errors/urlError');
+const BadRequestError = require('../errors/BadRequestError');
 
 const {
   createCard, getCards, deleteCardById, likeCard, dislikeCard,
@@ -12,7 +12,7 @@ router.post('/', celebrate({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().min(2).custom((avatar) => {
       if (!validator.isURL(avatar)) {
-        throw new UrlError('Это не URL');
+        throw new BadRequestError('Это не URL');
       }
       return avatar;
     }),

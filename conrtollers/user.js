@@ -1,7 +1,9 @@
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const NotFoundError = require('../errors/not-found-err');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
 
 const model = require('../models/user');
 
@@ -19,7 +21,6 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => {
       if (validator.isEmail(req.body.email)) {
-        console.log(user);
         return res.status(create).send({
           name: user.name,
           about: user.about,
@@ -30,7 +31,12 @@ module.exports.createUser = (req, res, next) => {
       }
       return res.send({ message: 'Почта не валидная' });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email уже зарегестриван.'));
+      }
+      next(err);
+    });
 };
 
 module.exports.getUserById = (req, res, next) => {
@@ -41,7 +47,13 @@ module.exports.getUserById = (req, res, next) => {
       }
       return res.status(ok).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Передан невалидный ID для поиска'));
+      }
+
+      next(err);
+    });
 };
 
 module.exports.getUsers = (req, res, next) => {
@@ -60,7 +72,13 @@ module.exports.updateUser = (req, res, next) => {
       }
       return res.status(ok).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      }
+
+      next(err);
+    });
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
@@ -71,10 +89,16 @@ module.exports.updateUserAvatar = (req, res, next) => {
       }
       return res.status(ok).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      }
+
+      next(err);
+    });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return model.findUserByCredentials(email, password)
@@ -83,11 +107,7 @@ module.exports.login = (req, res) => {
 
       return res.send({ token });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };
 
 module.exports.getMyProfiel = (req, res, next) => {

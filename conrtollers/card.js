@@ -1,5 +1,7 @@
 const model = require('../models/card');
-const NotFoundError = require('../errors/not-found-err');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const create = 201;
 const ok = 200;
@@ -11,7 +13,13 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => {
       res.status(create).send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      }
+
+      next(err);
+    });
 };
 
 module.exports.getCards = (req, res, next) => {
@@ -27,10 +35,9 @@ module.exports.deleteCardById = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Передан несуществующий _id карточки.');
-        // return res.status(err404).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       if (card.owner.toString() !== req.user._id) {
-        return res.status(403).send({ message: 'Недостаточно прав.' });
+        throw new ForbiddenError('Недостаточно прав.');
       }
       return model.findByIdAndDelete(req.params.cardId)
         .then(() => {
@@ -38,7 +45,13 @@ module.exports.deleteCardById = (req, res, next) => {
         })
         .catch(next);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Передан невалидный ID для поиска'));
+      }
+
+      next(err);
+    });
 };
 
 module.exports.likeCard = (req, res, next) => model.findByIdAndUpdate(
@@ -52,7 +65,13 @@ module.exports.likeCard = (req, res, next) => model.findByIdAndUpdate(
     }
     return res.status(ok).send(card);
   })
-  .catch(next);
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      next(new BadRequestError('Передан невалидный ID для поиска'));
+    }
+
+    next(err);
+  });
 
 module.exports.dislikeCard = (req, res, next) => model.findByIdAndUpdate(
   req.params.cardId,
@@ -65,4 +84,10 @@ module.exports.dislikeCard = (req, res, next) => model.findByIdAndUpdate(
     }
     return res.status(ok).send(card);
   })
-  .catch(next);
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      next(new BadRequestError('Передан невалидный ID для поиска'));
+    }
+
+    next(err);
+  });

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const validator = require('validator');
 const { celebrate, Joi } = require('celebrate');
-const UrlError = require('../errors/urlError');
+const BadRequestError = require('../errors/BadRequestError');
 const {
   getUserById, getUsers, updateUser, updateUserAvatar, getMyProfiel,
 } = require('../conrtollers/user');
@@ -27,7 +27,7 @@ router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().custom((avatar) => {
       if (!validator.isURL(avatar)) {
-        throw new UrlError('Это не URL');
+        throw new BadRequestError('Это не URL');
       }
       return avatar;
     }),
