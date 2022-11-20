@@ -16,9 +16,9 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -48,9 +48,9 @@ module.exports.deleteCardById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Передан невалидный ID для поиска'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -68,9 +68,9 @@ module.exports.likeCard = (req, res, next) => model.findByIdAndUpdate(
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError('Передан невалидный ID для поиска'));
+    } else {
+      next(err);
     }
-
-    next(err);
   });
 
 module.exports.dislikeCard = (req, res, next) => model.findByIdAndUpdate(
@@ -87,7 +87,7 @@ module.exports.dislikeCard = (req, res, next) => model.findByIdAndUpdate(
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError('Передан невалидный ID для поиска'));
+    } else {
+      next(err);
     }
-
-    next(err);
   });

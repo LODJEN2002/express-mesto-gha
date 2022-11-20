@@ -1,4 +1,3 @@
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/NotFoundError');
@@ -20,22 +19,22 @@ module.exports.createUser = (req, res, next) => {
       avatar: req.body.avatar,
     }))
     .then((user) => {
-      if (validator.isEmail(req.body.email)) {
-        return res.status(create).send({
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-          email: user.email,
-          _id: user._id,
-        });
-      }
-      return res.send({ message: 'Почта не валидная' });
+      res.status(create).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже зарегестриван.'));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -50,9 +49,9 @@ module.exports.getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Передан невалидный ID для поиска'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -75,9 +74,9 @@ module.exports.updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -92,9 +91,9 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
